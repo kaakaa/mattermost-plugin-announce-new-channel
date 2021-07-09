@@ -1,4 +1,4 @@
-module github.com/mattermost/mattermost-plugin-starter-template
+module github.com/kaakaa/mattermost-plugin-announce-new-channel
 
 go 1.16
 
