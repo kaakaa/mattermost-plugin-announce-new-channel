@@ -10,3 +10,4 @@ workflows:
       - plugin-ci/lint
       - plugin-ci/test
       - plugin-ci/build
+      - plugin-ci/deploy-release-github
