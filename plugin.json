@@ -19,6 +19,19 @@
     "settings_schema": {
         "header": "",
         "footer": "",
-        "settings": []
+        "settings": [{
+            "key": "MessageType",
+            "display_name": "Message type",
+            "type": "radio",
+            "help_text": "Select message type.\n- **Simple** is simple text message composed by __channel link__ and __creator__.\n- **MessageAttchments** is more rich text including __Purpose__ and __CreatedAt__.",
+            "default": "simple",
+            "options": [{
+                "display_name": "Simple",
+                "value": "simple"
+            }, {
+                "display_name": "MessageAttachments",
+                "value": "message-attachments"
+            }]
+        }]
     }
 }

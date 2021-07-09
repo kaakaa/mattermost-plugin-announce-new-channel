@@ -7,10 +7,9 @@ import (
 	"github.com/mattermost/mattermost-server/v5/plugin"
 )
 
-const MessageFormat = `Channel ~%s has been created by %s.`
+const MessageFormat = `Channel ~%s has been created by @%s.`
 
 func (p *Plugin) ChannelHasBeenCreated(c *plugin.Context, channel *model.Channel) {
-	p.API.LogInfo("ChannelHasBennCreated", "details", fmt.Sprintf("%#v", channel), "context", fmt.Sprintf("%#v", c))
 	if channel.Type != model.CHANNEL_OPEN {
 		return
 	}
@@ -30,7 +29,38 @@ func (p *Plugin) ChannelHasBeenCreated(c *plugin.Context, channel *model.Channel
 		Type:      model.POST_DEFAULT,
 		ChannelId: townSquare.Id,
 		UserId:    p.botUserID,
-		Message:   fmt.Sprintf(MessageFormat, channel.Name, u.GetDisplayName(model.SHOW_USERNAME)),
+	}
+
+	switch p.getConfiguration().MessageType {
+	case "message-attachments":
+		purpose := channel.Purpose
+		if len(purpose) == 0 {
+			purpose = "(no purpose)"
+		}
+		header := channel.Header
+		if len(header) == 0 {
+			header = "(no header)"
+		}
+		attachments := &model.SlackAttachment{
+			Color:      "#FF8000",
+			AuthorName: "mattermost-plugin-announce-new-channel",
+			AuthorLink: "https://github.com/kaakaa/mattermost-plugin-announce-new-channel",
+			Title:      fmt.Sprintf(MessageFormat, channel.Name, u.GetDisplayName(model.SHOW_USERNAME)),
+			Fields: []*model.SlackAttachmentField{{
+				Title: "Purpose",
+				Value: purpose,
+				Short: false,
+			}, {
+				Title: "Header",
+				Value: header,
+				Short: false,
+			}},
+		}
+		post.AddProp("attachments", []*model.SlackAttachment{attachments})
+	case "simple":
+		fallthrough
+	default:
+		post.Message = fmt.Sprintf(MessageFormat, channel.Name, u.GetDisplayName(model.SHOW_USERNAME))
 	}
 
 	if _, appErr := p.API.CreatePost(post); appErr != nil {
